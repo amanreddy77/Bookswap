@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Remove or keep as fallback, but let MUI Joy control the theme */
+  --foreground-rgb: 24, 24, 27; /* Default to dark for fallback */
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+}
+
+/* Remove the prefers-color-scheme media query to let LightDarkMode control the mode */
+body {
+  color: rgb(var(--foreground-rgb));
+  background: var(--joy-palette-background-body); /* Use MUI Joy's background gradient */
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
