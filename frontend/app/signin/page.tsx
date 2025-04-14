@@ -9,6 +9,7 @@ import Container from '@mui/joy/Container';
 import Input from '@mui/joy/Input';
 import Button from '@mui/joy/Button';
 import { CssBaseline } from '@mui/joy';
+import router from 'next/router';
 
 function Page(): JSX.Element {
   const { login } = useAuthContext();
