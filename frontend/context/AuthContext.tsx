@@ -11,7 +11,7 @@ export interface User {
   name: string;
   mobile: string;
   email: string;
-  password: string;
+  password: string; // Ensure password is present if used in refreshUser
   role: "owner" | "seeker";
 }
 
@@ -24,7 +24,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuthContext = () => {
+export const useAuthContext = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuthContext must be used within an AuthProvider");
@@ -41,30 +41,25 @@ export function AuthContextProvider({ children }: AuthContextProviderProps): JSX
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Fetch stored user on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Failed to parse stored user:", error);
+        localStorage.removeItem("user"); // Clean up invalid data
+      }
     }
     setLoading(false);
-
-    // Optional: Fetch user data on mount if needed
-    axios
-      .get("http://localhost:4000/api/users")
-      .catch((err: unknown) => {
-        if (isAxiosError(err)) {
-          console.error("Failed to fetch users:", err.message);
-        } else {
-          console.error("Unexpected error:", err);
-        }
-      });
-  }, []);
+  }, []); // Empty dependency array is fine here since this is a one-time load
 
   const login = async (email: string, password: string) => {
     try {
-      setLoading(true); // Show loading state during login
+      setLoading(true);
       const res = await axios.post("http://localhost:4000/api/login", { email, password });
-      const loggedInUser = res.data.user;
+      const loggedInUser = res.data.user as User; // Type assertion with interface
 
       if (!loggedInUser || !loggedInUser.role) {
         throw new Error("Invalid user data received from server");
@@ -73,7 +68,6 @@ export function AuthContextProvider({ children }: AuthContextProviderProps): JSX
       setUser(loggedInUser);
       localStorage.setItem("user", JSON.stringify(loggedInUser));
 
-      // Redirect based on role
       const redirectPath = loggedInUser.role === "owner" ? "/home" : "/homeseeker";
       router.push(redirectPath);
     } catch (err: unknown) {
@@ -83,7 +77,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps): JSX
         alert("An unexpected error occurred");
       }
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
@@ -94,22 +88,33 @@ export function AuthContextProvider({ children }: AuthContextProviderProps): JSX
   };
 
   const refreshUser = async () => {
-    if (user) {
-      try {
-        setLoading(true);
-        const res = await axios.post("http://localhost:4000/api/login", {
-          email: user.email,
-          password: user.password,
-        });
-        setUser(res.data.user);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-      } catch (err: unknown) {
-        if (isAxiosError(err)) {
-          console.error("Refresh failed:", err.message);
-        }
-      } finally {
-        setLoading(false);
+    if (!user) {
+      console.warn("No user logged in to refresh");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await axios.post("http://localhost:4000/api/login", {
+        email: user.email,
+        password: user.password,
+      });
+      const refreshedUser = res.data.user as User;
+
+      if (!refreshedUser || !refreshedUser.role) {
+        throw new Error("Invalid refreshed user data");
       }
+
+      setUser(refreshedUser);
+      localStorage.setItem("user", JSON.stringify(refreshedUser));
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        console.error("Refresh failed:", err.message);
+      } else {
+        console.error("Unexpected error during refresh:", err);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 

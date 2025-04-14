@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import BookCard from './BookCard';
 import { getAllBooks } from '@/services/BookService';
 import { Book } from '@/types/book';
-import { Box, Typography, Skeleton, Grid } from '@mui/joy';
+import { Box, Typography, Skeleton, Grid, Container } from '@mui/joy';
 import BookSearch from '@/features/search/components/BookSearch';
 
 export default function BookList() {
@@ -28,15 +28,11 @@ export default function BookList() {
   }, []);
 
   return (
-    <Box
+    <Container
+      maxWidth="lg"
       sx={{
-        width: '100%',
-        maxWidth: '100%',
         px: { xs: 2, sm: 3, md: 4 },
-        py: 2,
-        bgcolor: 'background.surface',
-        borderRadius: { xs: 0, sm: '8px' },
-        boxShadow: { sm: '0 2px 8px rgba(0, 0, 0, 0.05)' },
+        py: { xs: 2, sm: 3 },
       }}
     >
       {/* Heading */}
@@ -55,7 +51,7 @@ export default function BookList() {
       </Typography>
 
       {/* Search Bar */}
-      <Box sx={{ mb: 3, maxWidth: { xs: '100%', sm: '1100px' } }}>
+      <Box sx={{ mb: 3, width: '100%' }}>
         <BookSearch books={books} onSetFilter={setBooks} />
       </Box>
 
@@ -63,11 +59,11 @@ export default function BookList() {
       {loading ? (
         <Grid container spacing={2}>
           {[...Array(6)].map((_, index) => (
-            <Grid key={index} xs={6} sm={4} md={3}>
+            <Grid key={index} xs={12} sm={6} md={4} lg={3}>
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={250} // Adjusted height for row layout
+                height={250}
                 sx={{ borderRadius: '8px' }}
               />
               <Skeleton variant="text" width="60%" sx={{ mt: 1 }} />
@@ -76,20 +72,14 @@ export default function BookList() {
           ))}
         </Grid>
       ) : books.length > 0 ? (
-        <Grid
-          container
-          spacing={2}
-          sx={{
-            width: '100%',
-            m: 0,
-          }}
-        >
+        <Grid container spacing={2}>
           {books.map((book, index) => (
             <Grid
               key={book.bookId || index}
-              xs={12} // 2 cards per row on mobile
-              sm={1} // 3 cards per row on tablet
-              md={4} // 4 cards per row on desktop
+              xs={12}
+              sm={6}
+              md={4}
+              lg={3}
             >
               <BookCard {...book} />
             </Grid>
@@ -108,6 +98,6 @@ export default function BookList() {
           No books available. Try adjusting your search or adding a new book!
         </Typography>
       )}
-    </Box>
+    </Container>
   );
 }

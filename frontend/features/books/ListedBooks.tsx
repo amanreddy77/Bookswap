@@ -8,7 +8,7 @@ import BookSearch from "@/features/search/components/BookSearch";
 import { useAuthContext } from "@/context/AuthContext";
 
 export default function BookList() {
-  const { user } = useAuthContext() as { user: any }; // Use 'as' to assert the type as { user: any }
+  const { user } = useAuthContext() as { user: any };
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,22 +37,45 @@ export default function BookList() {
     );
   };
 
-  if (loading) {
-    return (
-      <Box
+  const gridSpacing = { xs: 1, sm: 2, md: 3 };
+
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        maxWidth: "100%",
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 2, sm: 3 },
+        bgcolor: "background.surface",
+        borderRadius: { xs: 0, sm: "8px" },
+        boxShadow: { sm: "0 2px 8px rgba(0, 0, 0, 0.05)" },
+      }}
+    >
+      {/* Title */}
+      <Typography
+        level="h3"
         sx={{
-          width: "100%",
-          maxWidth: "100%",
-          px: { xs: 2, sm: 3, md: 4 },
-          py: 2,
-          bgcolor: "background.surface",
-          borderRadius: { xs: 0, sm: "8px" },
-          boxShadow: { sm: "0 2px 8px rgba(0, 0, 0, 0.05)" },
+          textAlign: "left",
+          mb: { xs: 1.5, sm: 2.5 },
+          fontSize: { xs: "1.5rem", sm: "1.8rem", md: "2rem" },
+          fontWeight: "bold",
+          color: "primary.800",
+          letterSpacing: "-0.01em",
         }}
       >
-        <Grid container spacing={{ xs: 1, sm: 2, md: 3 }}>
+        My List of Books
+      </Typography>
+
+      {/* Search */}
+      <Box sx={{ mb: { xs: 2, sm: 3 }, maxWidth: "100%" }}>
+        <BookSearch books={books} onSetFilter={setBooks} />
+      </Box>
+
+      {/* Skeleton Loading */}
+      {loading ? (
+        <Grid container spacing={gridSpacing}>
           {[...Array(6)].map((_, index) => (
-            <Grid key={index} xs={12} sm={6} md={3} lg={2}>
+            <Grid key={index} xs={12} sm={6} md={4} lg={3}>
               <Skeleton
                 variant="rectangular"
                 width="100%"
@@ -64,63 +87,21 @@ export default function BookList() {
             </Grid>
           ))}
         </Grid>
-      </Box>
-    );
-  }
-
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        maxWidth: "100%",
-        px: { xs: 2, sm: 3, md: 4 },
-        py: 2,
-        bgcolor: "background.surface",
-        borderRadius: { xs: 0, sm: "8px" },
-        boxShadow: { sm: "0 2px 8px rgba(0, 0, 0, 0.05)" },
-      }}
-    >
-      <Typography
-        level="h3"
-        sx={{
-          textAlign: "left",
-          mb: { xs: 1, sm: 2, md: 3 },
-          fontSize: { xs: "1.5rem", sm: "1.8rem", md: "2rem" },
-          fontWeight: "bold",
-          color: "primary.800",
-          letterSpacing: "-0.01em",
-        }}
-      >
-        My List of Books
-      </Typography>
-
-      <Box sx={{ mb: { xs: 1, sm: 2, md: 3 }, maxWidth: { xs: "100%", sm: "1100px" } }}>
-        <BookSearch books={books} onSetFilter={setBooks} />
-      </Box>
-
-      {books.length > 0 ? (
-        <Grid
-          container
-          spacing={{ xs: 1, sm: 2, md: 3 }}
-          sx={{
-            width: "100%",
-            m: 0,
-          }}
-        >
+      ) : books.length > 0 ? (
+        <Grid container spacing={gridSpacing}>
           {books.map((book) => (
             <Grid
               key={book.bookId}
-              xs={12} // 1 card per row on mobile
-              sm={6}  // 2 cards per row on tablet
-              md={3}  // 3 cards per row on desktop
-              lg={4}  // 2 cards per row on large screens
+              xs={12} // full width on mobile
+              sm={6}  // 2 per row on small
+              md={4}  // 3 per row on medium
+              lg={3}  // 4 per row on large
+              xl={2.4} // ~5 per row on extra large (if screen allows fractional)
             >
               <BookCard
                 {...book}
-                onLike={(updatedBook) => {
-                  handleEditBook(updatedBook);
-                }}
-                onEdit={handleEditBook} // Pass edit callback
+                onLike={handleEditBook}
+                onEdit={handleEditBook}
               />
             </Grid>
           ))}
@@ -130,7 +111,7 @@ export default function BookList() {
           level="body-lg"
           sx={{
             textAlign: "center",
-            py: { xs: 2, sm: 3, md: 4 },
+            py: { xs: 2, sm: 3 },
             color: "text.secondary",
             fontSize: { xs: "1rem", sm: "1.1rem" },
           }}

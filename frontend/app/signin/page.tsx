@@ -20,16 +20,26 @@ function Page(): JSX.Element {
     message: '',
   });
 
-  const handleForm = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const [loading, setLoading] = useState(false);
 
-    try {
-      await login(email, password);
-      setAlert({ show: true, success: true, message: 'Login successful!' });
-    } catch {
-      setAlert({ show: true, success: false, message: 'Invalid credentials' });
-    }
-  };
+const handleForm = async (event: React.FormEvent) => {
+  event.preventDefault();
+  setLoading(true);
+
+  try {
+    await login(email, password);
+    setAlert({ show: true, success: true, message: 'Login successful!' });
+
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 1000);
+  } catch {
+    setAlert({ show: true, success: false, message: 'Invalid credentials' });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <Box
@@ -90,16 +100,19 @@ function Page(): JSX.Element {
               sx={{ mb: 2 }}
             />
             <Button
-              type="submit"
-              fullWidth
-              sx={{
-                mt: 1,
-                bgcolor: '#00bcd4',
-                '&:hover': { bgcolor: '#0097a7' },
-              }}
-            >
-              Sign In
-            </Button>
+  type="submit"
+  fullWidth
+  disabled={loading}
+  sx={{
+    mt: 1,
+    bgcolor: '#00bcd4',
+    '&:hover': { bgcolor: '#0097a7' },
+  }}
+>
+  {loading ? 'Signing in...' : 'Sign In'}
+</Button>
+
+         
           </Box>
 
           <Button
