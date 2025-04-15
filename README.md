@@ -58,11 +58,12 @@ npm run build
 
 
 ---
-
 ## 📸 Screenshots
 
+![Home Page](./Screenshot%202025-04-15%20at%2010.51.11.png)  
+![Feature Page](./Screenshot%202025-04-15%20at%2010.49.00.png)
+![signin](./Screenshot%202025-04-15%20at%2010.48.05.png)
 
----
 
 
 
